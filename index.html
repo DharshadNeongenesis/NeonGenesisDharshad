@@ -1,0 +1,3177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEON GENESIS — Trading Terminal</title>
+
+<style>
+:root{
+  --bg:#07090d;
+  --panel:#0d1118;
+  --panel2:#111722;
+  --line:#202936;
+  --text:#edf2f7;
+  --muted:#7f8b9b;
+  --green:#4ade80;
+  --red:#fb7185;
+  --cyan:#38bdf8;
+  --violet:#a78bfa;
+  --amber:#fbbf24;
+  --shadow:0 18px 60px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 80% -10%,#172033 0,transparent 35%),
+    var(--bg);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,
+  BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+button{font:inherit}
+
+.app{
+  min-height:100vh;
+  padding:22px;
+}
+
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  margin-bottom:20px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+
+.logo{
+  width:38px;
+  height:38px;
+  border:1px solid #334155;
+  border-radius:11px;
+  display:grid;
+  place-items:center;
+  background:#101722;
+  box-shadow:0 0 30px rgba(56,189,248,.08);
+}
+
+.logo:before{
+  content:"";
+  width:15px;
+  height:15px;
+  border:2px solid var(--cyan);
+  border-radius:50%;
+  box-shadow:8px -5px 0 -5px var(--violet);
+}
+
+.brand h1{
+  font-size:17px;
+  letter-spacing:.18em;
+  margin:0;
+  font-weight:800;
+}
+
+.brand p{
+  margin:2px 0 0;
+  color:var(--muted);
+  font-size:11px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.status{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#aeb8c6;
+  font-size:12px;
+}
+
+.dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 12px var(--green);
+}
+
+.actions{
+  display:flex;
+  gap:9px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  border:1px solid #2b3543;
+  background:#111722;
+  color:#dbe4ee;
+  padding:9px 14px;
+  border-radius:9px;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:700;
+  transition:.18s;
+}
+
+.btn:hover{
+  border-color:#526175;
+  transform:translateY(-1px);
+}
+
+.btn.primary{
+  background:#dceeff;
+  color:#06101b;
+  border-color:#dceeff;
+}
+
+.btn.danger{
+  border-color:#6b2634;
+  color:#fecdd3;
+}
+
+.btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:14px;
+}
+
+.panel{
+  background:
+    linear-gradient(145deg,rgba(17,23,34,.96),rgba(10,14,20,.96));
+  border:1px solid var(--line);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+.panel-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 16px;
+  border-bottom:1px solid var(--line);
+}
+
+.panel-title{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  color:#aeb9c8;
+  font-weight:800;
+}
+
+.panel-body{
+  padding:16px;
+}
+
+.hero{
+  grid-column:span 12;
+  padding:20px 22px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:20px;
+}
+
+.hero .eyebrow{
+  font-size:10px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--cyan);
+  font-weight:800;
+}
+
+.hero h2{
+  font-size:30px;
+  margin:6px 0 5px;
+  letter-spacing:-.03em;
+}
+
+.hero p{
+  margin:0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.price-block{
+  text-align:right;
+}
+
+.price{
+  font-size:34px;
+  font-weight:800;
+  letter-spacing:-.04em;
+}
+
+.change{
+  font-size:12px;
+  margin-top:3px;
+}
+
+.kpi{
+  grid-column:span 3;
+  min-height:105px;
+}
+
+.kpi .panel-body{
+  height:100%;
+}
+
+.kpi-label{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:var(--muted);
+}
+
+.kpi-value{
+  font-size:25px;
+  font-weight:800;
+  margin-top:10px;
+}
+
+.kpi-sub{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:5px;
+}
+
+.market-chart{
+  grid-column:span 8;
+  min-height:350px;
+}
+
+.orderbook{
+  grid-column:span 4;
+  min-height:350px;
+}
+
+.ai{
+  grid-column:span 4;
+}
+
+.mm{
+  grid-column:span 4;
+}
+
+.risk{
+  grid-column:span 4;
+}
+
+.analytics{
+  grid-column:span 8;
+}
+
+.stress{
+  grid-column:span 12;
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:9px 0;
+  border-bottom:1px solid rgba(32,41,54,.7);
+}
+
+.row:last-child{
+  border-bottom:0;
+}
+
+.label{
+  color:var(--muted);
+  font-size:11px;
+}
+
+.value{
+  font-size:12px;
+  font-weight:700;
+  text-align:right;
+}
+
+.bid{
+  color:var(--green);
+}
+
+.ask{
+  color:var(--red);
+}
+
+.cyan{
+  color:var(--cyan);
+}
+
+.violet{
+  color:var(--violet);
+}
+
+.amber{
+  color:var(--amber);
+}
+
+.book-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.book-side h4{
+  font-size:10px;
+  color:var(--muted);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  margin:0 0 8px;
+}
+
+.level{
+  display:flex;
+  justify-content:space-between;
+  font-size:11px;
+  padding:6px 0;
+  border-bottom:1px solid rgba(32,41,54,.5);
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid #2b3543;
+  background:#151c27;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.badge.safe{
+  color:var(--green);
+  border-color:#245b3a;
+}
+
+.badge.warning{
+  color:var(--amber);
+  border-color:#6a5320;
+}
+
+.badge.critical,
+.badge.halted{
+  color:var(--red);
+  border-color:#692837;
+}
+
+.metric-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.mini{
+  background:#0b1017;
+  border:1px solid #1c2531;
+  border-radius:10px;
+  padding:11px;
+}
+
+.mini span{
+  display:block;
+  color:var(--muted);
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+}
+
+.mini strong{
+  display:block;
+  margin-top:6px;
+  font-size:16px;
+}
+
+canvas{
+  display:block;
+  width:100%;
+  height:270px;
+}
+
+.chart-wrap{
+  padding:8px 12px 14px;
+}
+
+.phase-track{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:5px;
+  margin:12px 0;
+}
+
+.phase{
+  height:8px;
+  border-radius:99px;
+  background:#1a222d;
+  transition:.35s;
+}
+
+.phase.active{
+  background:var(--cyan);
+  box-shadow:0 0 15px rgba(56,189,248,.55);
+}
+
+.phase.done{
+  background:var(--green);
+  box-shadow:0 0 12px rgba(74,222,128,.25);
+}
+
+.phase.crash{
+  background:var(--red);
+  box-shadow:0 0 15px rgba(251,113,133,.45);
+}
+
+.progress{
+  height:7px;
+  background:#1a222d;
+  border-radius:99px;
+  overflow:hidden;
+}
+
+.progress i{
+  display:block;
+  height:100%;
+  width:0;
+  background:var(--cyan);
+  transition:.3s;
+}
+
+.stress-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:12px;
+}
+
+.stress-card{
+  background:#0b1017;
+  border:1px solid #1c2531;
+  border-radius:11px;
+  padding:12px;
+  position:relative;
+  overflow:hidden;
+  transition:.25s;
+}
+
+.stress-card.live{
+  border-color:#38bdf8;
+  box-shadow:0 0 25px rgba(56,189,248,.08);
+  transform:translateY(-1px);
+}
+
+.stress-card .small{
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:var(--muted);
+}
+
+.stress-card strong{
+  display:block;
+  font-size:18px;
+  margin-top:5px;
+}
+
+.stress-card span{
+  display:block;
+  font-size:10px;
+  color:var(--muted);
+  margin-top:3px;
+}
+
+.stress-live{
+  display:grid;
+  grid-template-columns:1.3fr repeat(6,1fr);
+  gap:10px;
+  margin-top:14px;
+}
+
+.stress-hero{
+  background:
+    linear-gradient(135deg,#101b29,#0b1017);
+  border:1px solid #263548;
+  border-radius:11px;
+  padding:13px;
+}
+
+.stress-hero .eyebrow{
+  font-size:9px;
+  color:var(--cyan);
+  text-transform:uppercase;
+  letter-spacing:.14em;
+}
+
+.stress-hero strong{
+  display:block;
+  font-size:22px;
+  margin-top:5px;
+}
+
+.stress-hero span{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  margin-top:3px;
+}
+
+.stress-metric{
+  background:#0b1017;
+  border:1px solid #1c2531;
+  border-radius:11px;
+  padding:11px;
+}
+
+.stress-metric span{
+  display:block;
+  color:var(--muted);
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+}
+
+.stress-metric strong{
+  display:block;
+  margin-top:7px;
+  font-size:15px;
+}
+
+.stress-metric .green{
+  color:var(--green);
+}
+
+.stress-metric .red{
+  color:var(--red);
+}
+
+.stress-metric .amber{
+  color:var(--amber);
+}
+
+.stress-running{
+  animation:pulse 1.2s infinite;
+}
+
+@keyframes pulse{
+  0%,100%{opacity:1}
+  50%{opacity:.55}
+}
+
+.footer{
+  color:#556171;
+  font-size:10px;
+  text-align:center;
+  padding:18px 0 4px;
+  letter-spacing:.08em;
+}
+
+.toast{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  background:#111722;
+  border:1px solid #334155;
+  padding:11px 14px;
+  border-radius:10px;
+  font-size:12px;
+  opacity:0;
+  transform:translateY(10px);
+  pointer-events:none;
+  transition:.2s;
+  z-index:5;
+}
+
+.toast.show{
+  opacity:1;
+  transform:none;
+}
+
+@media(max-width:1050px){
+
+  .kpi{
+    grid-column:span 6;
+  }
+
+  .market-chart,
+  .orderbook,
+  .analytics,
+  .stress{
+    grid-column:span 12;
+  }
+
+  .ai,
+  .mm,
+  .risk{
+    grid-column:span 4;
+  }
+
+  .stress-live{
+    grid-template-columns:1fr 1fr 1fr 1fr;
+  }
+
+  .stress-hero{
+    grid-column:span 4;
+  }
+
+}
+
+@media(max-width:720px){
+
+  .app{
+    padding:12px;
+  }
+
+  .topbar,
+  .hero{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .price-block{
+    text-align:left;
+  }
+
+  .kpi,
+  .ai,
+  .mm,
+  .risk{
+    grid-column:span 12;
+  }
+
+  .hero h2{
+    font-size:24px;
+  }
+
+  .actions{
+    width:100%;
+  }
+
+  .btn{
+    flex:1;
+  }
+
+  .stress-grid,
+  .stress-live{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .stress-hero{
+    grid-column:span 2;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header class="topbar">
+
+  <div class="brand">
+
+    <div class="logo"></div>
+
+    <div>
+      <h1>NEON GENESIS</h1>
+      <p>Adaptive Market-Making & Risk Intelligence</p>
+    </div>
+
+  </div>
+
+  <div class="status">
+    <span class="dot" id="statusDot"></span>
+    <span id="statusText">CONNECTING</span>
+  </div>
+
+  <div class="actions">
+
+    <button class="btn primary" id="startBtn">
+      START LIVE
+    </button>
+
+    <button class="btn" id="stopBtn">
+      STOP
+    </button>
+
+    <button class="btn" id="stepBtn">
+      STEP
+    </button>
+
+    <button class="btn" id="resetBtn">
+      RESET
+    </button>
+
+    <button class="btn danger" id="stressBtn">
+      RUN STRESS TEST
+    </button>
+
+  </div>
+
+</header>
+
+
+<main class="grid">
+
+<section class="panel hero">
+
+  <div>
+
+    <div class="eyebrow">
+      Live Trading Terminal
+    </div>
+
+    <h2>
+      Market Intelligence Console
+    </h2>
+
+    <p>
+      Real-time simulation · AI regime detection · adaptive quoting · risk control
+    </p>
+
+  </div>
+
+  <div class="price-block">
+
+    <div class="price" id="price">
+      $100.00
+    </div>
+
+    <div class="change" id="priceChange">
+      —
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="panel kpi">
+
+  <div class="panel-body">
+
+    <div class="kpi-label">P&L</div>
+
+    <div class="kpi-value" id="pnl">
+      $0.00
+    </div>
+
+    <div class="kpi-sub" id="drawdown">
+      Drawdown $0.00
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="panel kpi">
+
+  <div class="panel-body">
+
+    <div class="kpi-label">Equity</div>
+
+    <div class="kpi-value" id="equity">
+      $100,000.00
+    </div>
+
+    <div class="kpi-sub">
+      Portfolio value
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="panel kpi">
+
+  <div class="panel-body">
+
+    <div class="kpi-label">Inventory</div>
+
+    <div class="kpi-value" id="inventory">
+      0
+    </div>
+
+    <div class="kpi-sub" id="exposure">
+      Exposure —
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="panel kpi">
+
+  <div class="panel-body">
+
+    <div class="kpi-label">Risk</div>
+
+    <div class="kpi-value" id="risk">
+      <span class="badge safe">
+        SAFE
+      </span>
+    </div>
+
+    <div class="kpi-sub" id="riskUtil">
+      Utilization 0%
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="panel market-chart">
+
+  <div class="panel-head">
+
+    <span class="panel-title">
+      Market Price
+    </span>
+
+    <span class="badge" id="stepBadge">
+      STEP 0
+    </span>
+
+  </div>
+
+  <div class="chart-wrap">
+
+    <canvas id="chart"></canvas>
+
+  </div>
+
+</section>
+
+
+<section class="panel orderbook">
+
+  <div class="panel-head">
+
+    <span class="panel-title">
+      Order Book
+    </span>
+
+    <span class="value" id="spread">
+      Spread —
+    </span>
+
+  </div>
+
+  <div class="panel-body">
+
+    <div class="book-grid">
+
+      <div class="book-side">
+
+        <h4>Bids</h4>
+
+        <div id="bids"></div>
+
+      </div>
+
+
+      <div class="book-side">
+
+        <h4>Asks</h4>
+
+        <div id="asks"></div>
+
+      </div>
+
+    </div>
+
+
+    <div class="row" style="margin-top:12px">
+
+      <span class="label">
+        Best bid
+      </span>
+
+      <strong class="value bid" id="bestBid">
+        —
+      </strong>
+
+    </div>
+
+
+    <div class="row">
+
+      <span class="label">
+        Best ask
+      </span>
+
+      <strong class="value ask" id="bestAsk">
+        —
+      </strong>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="panel ai">
+
+  <div class="panel-head">
+
+    <span class="panel-title">
+      AI Intelligence
+    </span>
+
+    <span class="badge" id="regime">
+      CALM
+    </span>
+
+  </div>
+
+  <div class="panel-body">
+
+    <div class="row">
+
+      <span class="label">
+        Directional bias
+      </span>
+
+      <strong class="value cyan" id="bias">
+        NEUTRAL
+      </strong>
+
+    </div>
+
+
+    <div class="row">
+
+      <span class="label">
+        Confidence
+      </span>
+
+      <strong class="value" id="confidence">
+        0%
+      </strong>
+
+    </div>
+
+
+    <div class="row">
+
+      <span class="label">
+        Expected movement
+      </span>
+
+      <strong class="value" id="movement">
+        0.000
+      </strong>
+
+    </div>
+
+
+    <div class="row">
+
+      <span class="label">
+        Spread multiplier
+      </span>
+
+      <strong class="value" id="aiSpread">
+        1.00×
+      </strong>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="panel mm">
+
+  <div class="panel-head">
+
+    <span class="panel-title">
+      Market Maker
+    </span>
+
+    <span class="badge" id="mmAllowed">
+      ACTIVE
+    </span>
+
+  </div>
+
+  <div class="panel-body">
+
+    <div class="metric-grid">
+
+      <div class="mini">
+        <span>Fair price</span>
+        <strong id="fairPrice">—</strong>
+      </div>
+
+      <div class="mini">
+        <span>Quote spread</span>
+        <strong id="mmSpread">—</strong>
+      </div>
+
+      <div class="mini">
+        <span>Bid</span>
+        <strong class="bid" id="mmBid">—</strong>
+      </div>
+
+      <div class="mini">
+        <span>Ask</span>
+        <strong class="ask" id="mmAsk">—</strong>
+      </div>
+
+      <div class="mini">
+        <span>Bid qty</span>
+        <strong id="bidQty">0</strong>
+      </div>
+
+      <div class="mini">
+        <span>Ask qty</span>
+        <strong id="askQty">0</strong>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="panel risk">
+
+  <div class="panel-head">
+
+    <span class="panel-title">
+      Risk Monitor
+    </span>
+
+    <span class="badge safe" id="riskBadge">
+      SAFE
+    </span>
+
+  </div>
+
+  <div class="panel-body">
+
+    <div class="row">
+
+      <span class="label">
+        Inventory utilization
+      </span>
+
+      <strong class="value" id="invUtil">
+        0%
+      </strong>
+
+    </div>
+
+
+    <div class="row">
+
+      <span class="label">
+        Exposure utilization
+      </span>
+
+      <strong class="value" id="expUtil">
+        0%
+      </strong>
+
+    </div>
+
+
+    <div class="row">
+
+      <span class="label">
+        Volatility
+      </span>
+
+      <strong class="value" id="volatility">
+        0.0000
+      </strong>
+
+    </div>
+
+
+    <div class="row">
+
+      <span class="label">
+        Loss
+      </span>
+
+      <strong class="value" id="loss">
+        $0.00
+      </strong>
+
+    </div>
+
+
+    <div class="row">
+
+      <span class="label">
+        Quote size multiplier
+      </span>
+
+      <strong class="value" id="riskMult">
+        1.00×
+      </strong>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="panel analytics">
+
+  <div class="panel-head">
+
+    <span class="panel-title">
+      Session Analytics
+    </span>
+
+    <span class="value" id="tradeActivity">
+      IDLE
+    </span>
+
+  </div>
+
+  <div class="panel-body">
+
+    <div class="metric-grid">
+
+      <div class="mini">
+        <span>Total trades</span>
+        <strong id="trades">0</strong>
+      </div>
+
+      <div class="mini">
+        <span>Total volume</span>
+        <strong id="volume">0</strong>
+      </div>
+
+      <div class="mini">
+        <span>Average volatility</span>
+        <strong id="avgVol">0.0000</strong>
+      </div>
+
+      <div class="mini">
+        <span>Maximum volatility</span>
+        <strong id="maxVol">0.0000</strong>
+      </div>
+
+      <div class="mini">
+        <span>Maximum inventory</span>
+        <strong id="maxInv">0</strong>
+      </div>
+
+      <div class="mini">
+        <span>Maximum drawdown</span>
+        <strong id="maxDD">$0.00</strong>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="panel stress">
+
+  <div class="panel-head">
+
+    <span class="panel-title">
+      Stress Test Laboratory
+    </span>
+
+    <span class="badge" id="stressStatus">
+      READY
+    </span>
+
+  </div>
+
+  <div class="panel-body">
+
+    <div class="phase-track">
+
+      <div class="phase" id="phase0"></div>
+      <div class="phase" id="phase1"></div>
+      <div class="phase" id="phase2"></div>
+      <div class="phase" id="phase3"></div>
+
+    </div>
+
+
+    <div class="stress-grid">
+
+      <div class="stress-card" id="stressCard0">
+
+        <div class="small">
+          Phase 01
+        </div>
+
+        <strong>
+          NORMAL
+        </strong>
+
+        <span id="stressCard0Status">
+          Waiting
+        </span>
+
+      </div>
+
+
+      <div class="stress-card" id="stressCard1">
+
+        <div class="small">
+          Phase 02
+        </div>
+
+        <strong>
+          HIGH VOLATILITY
+        </strong>
+
+        <span id="stressCard1Status">
+          Waiting
+        </span>
+
+      </div>
+
+
+      <div class="stress-card" id="stressCard2">
+
+        <div class="small">
+          Phase 03
+        </div>
+
+        <strong>
+          CRASH
+        </strong>
+
+        <span id="stressCard2Status">
+          Waiting
+        </span>
+
+      </div>
+
+
+      <div class="stress-card" id="stressCard3">
+
+        <div class="small">
+          Phase 04
+        </div>
+
+        <strong>
+          RECOVERY
+        </strong>
+
+        <span id="stressCard3Status">
+          Waiting
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="stress-live">
+
+      <div class="stress-hero" id="stressHero">
+
+        <div class="eyebrow">
+          Current stress regime
+        </div>
+
+        <strong id="stressPhase">
+          READY
+        </strong>
+
+        <span id="stressStep">
+          Awaiting test
+        </span>
+
+        <div class="progress" style="margin-top:12px">
+
+          <i id="stressProgress"></i>
+
+        </div>
+
+      </div>
+
+
+      <div class="stress-metric">
+
+        <span>
+          Stress price
+        </span>
+
+        <strong id="stressPrice">
+          —
+        </strong>
+
+      </div>
+
+
+      <div class="stress-metric">
+
+        <span>
+          Risk
+        </span>
+
+        <strong id="stressRisk">
+          —
+        </strong>
+
+      </div>
+
+
+      <div class="stress-metric">
+
+        <span>
+          Inventory
+        </span>
+
+        <strong id="stressInventory">
+          —
+        </strong>
+
+      </div>
+
+
+      <div class="stress-metric">
+
+        <span>
+          Volatility
+        </span>
+
+        <strong id="stressVol">
+          —
+        </strong>
+
+      </div>
+
+
+      <div class="stress-metric">
+
+        <span>
+          Quote multiplier
+        </span>
+
+        <strong id="stressQuote">
+          —
+        </strong>
+
+      </div>
+
+
+      <div class="stress-metric">
+
+        <span>
+          Trading
+        </span>
+
+        <strong id="stressTrading">
+          —
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="row" style="margin-top:12px">
+
+      <span class="label">
+        Stress P&L
+      </span>
+
+      <strong class="value" id="stressPnl">
+        —
+      </strong>
+
+    </div>
+
+
+    <div class="row">
+
+      <span class="label">
+        Stress equity
+      </span>
+
+      <strong class="value" id="stressEquity">
+        —
+      </strong>
+
+    </div>
+
+
+    <div class="row">
+
+      <span class="label">
+        Validation
+      </span>
+
+      <strong class="value" id="stressValidation">
+        —
+      </strong>
+
+    </div>
+
+  </div>
+
+</section>
+
+</main>
+
+
+<div class="footer">
+  NEON GENESIS · ADAPTIVE MARKET-MAKING & RISK INTELLIGENCE · LIVE BACKEND CONNECTED
+</div>
+
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+
+const $ = id => document.getElementById(id);
+
+
+/* ---------------------------------------------------------
+   Formatting
+--------------------------------------------------------- */
+
+function money(v){
+
+  if(
+    v === null ||
+    v === undefined ||
+    v === "" ||
+    !Number.isFinite(Number(v))
+  ){
+    return "—";
+  }
+
+  return `$${Number(v).toLocaleString(
+    undefined,
+    {
+      minimumFractionDigits:2,
+      maximumFractionDigits:2
+    }
+  )}`;
+
+}
+
+
+function num(v,d=2){
+
+  if(
+    v === null ||
+    v === undefined ||
+    v === "" ||
+    !Number.isFinite(Number(v))
+  ){
+    return "—";
+  }
+
+  return Number(v).toFixed(d);
+
+}
+
+
+function pct(v){
+
+  if(
+    v === null ||
+    v === undefined ||
+    v === "" ||
+    !Number.isFinite(Number(v))
+  ){
+    return "—";
+  }
+
+  return `${(Number(v)*100).toFixed(1)}%`;
+
+}
+
+
+function setText(id,v){
+  $(id).textContent = v;
+}
+
+
+function setHTML(id,v){
+  $(id).innerHTML = v;
+}
+
+
+/* ---------------------------------------------------------
+   State
+--------------------------------------------------------- */
+
+let prices = [];
+
+let lastStep = -1;
+
+let stressTimer = null;
+
+let stressReplayTimer = null;
+
+let stressReplayIndex = 0;
+
+let stressSnapshots = [];
+
+
+/* ---------------------------------------------------------
+   Toast
+--------------------------------------------------------- */
+
+function toast(msg){
+
+  $("toast").textContent = msg;
+
+  $("toast").classList.add("show");
+
+  clearTimeout(toast.t);
+
+  toast.t = setTimeout(
+    () => {
+      $("toast").classList.remove("show");
+    },
+    2200
+  );
+
+}
+
+
+/* ---------------------------------------------------------
+   Badge
+--------------------------------------------------------- */
+
+function badge(el,value){
+
+  el.textContent =
+    value || "—";
+
+  el.className =
+    "badge " +
+    String(value || "")
+      .toLowerCase()
+      .replace(/\s+/g,"-");
+
+}
+
+
+/* ---------------------------------------------------------
+   API
+--------------------------------------------------------- */
+
+async function api(
+  path,
+  options={}
+){
+
+  const r =
+    await fetch(
+      path,
+      {
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+        ...options
+      }
+    );
+
+
+  if(!r.ok){
+
+    let t =
+      await r.text();
+
+    throw new Error(
+      t || `HTTP ${r.status}`
+    );
+
+  }
+
+
+  return r.json();
+
+}
+
+
+/* ---------------------------------------------------------
+   Main dashboard refresh
+--------------------------------------------------------- */
+
+async function refresh(){
+
+  try{
+
+    const s =
+      await api("/api/state");
+
+
+    render(s);
+
+
+    $("statusText").textContent =
+      "SYSTEM ONLINE";
+
+
+    $("statusDot").style.background =
+      "var(--green)";
+
+  }
+
+  catch(e){
+
+    $("statusText").textContent =
+      "BACKEND OFFLINE";
+
+
+    $("statusDot").style.background =
+      "var(--red)";
+
+  }
+
+}
+
+
+/* ---------------------------------------------------------
+   Render dashboard
+--------------------------------------------------------- */
+
+function render(s){
+
+  const sim =
+    s.simulation || {};
+
+
+  const m =
+    s.market || {};
+
+
+  const ob =
+    s.order_book ||
+    s.orderbook ||
+    {};
+
+
+  const ai =
+    s.ai ||
+    s.prediction ||
+    {};
+
+
+  const mm =
+    s.market_maker ||
+    s.marketmaker ||
+    {};
+
+
+  const q =
+    mm.quote || {};
+
+
+  const risk =
+    s.risk || {};
+
+
+  const an =
+    s.analytics || {};
+
+
+  const price =
+    Number(
+      m.price ??
+      m.last_price ??
+      s.price
+    );
+
+
+  if(
+    Number.isFinite(price) &&
+    lastStep !== sim.step
+  ){
+
+    prices.push(price);
+
+
+    if(prices.length > 120){
+      prices.shift();
+    }
+
+
+    lastStep =
+      sim.step;
+
+  }
+
+
+  setText(
+    "price",
+    money(price)
+  );
+
+
+  setText(
+    "stepBadge",
+    `STEP ${sim.step ?? 0}`
+  );
+
+
+  const ret =
+    Number(
+      m.price_return ??
+      m.price_change
+    );
+
+
+  setText(
+    "priceChange",
+
+    Number.isFinite(ret)
+      ? `${ret >= 0 ? "+" : ""}${(ret*100).toFixed(2)}% return`
+      : "—"
+  );
+
+
+  $("priceChange").style.color =
+    ret >= 0
+      ? "var(--green)"
+      : "var(--red)";
+
+
+  const p =
+    mm.pnl ??
+    mm.PnL ??
+    mm.state?.pnl ??
+    s.portfolio?.pnl;
+
+
+  const eq =
+    mm.equity ??
+    mm.state?.equity ??
+    s.portfolio?.equity;
+
+
+  const inv =
+    mm.inventory ??
+    mm.state?.inventory ??
+    s.portfolio?.inventory;
+
+
+  setText(
+    "pnl",
+    money(p)
+  );
+
+
+  $("pnl").style.color =
+    Number(p) >= 0
+      ? "var(--green)"
+      : "var(--red)";
+
+
+  setText(
+    "equity",
+    money(eq)
+  );
+
+
+  setText(
+    "inventory",
+    num(inv,0)
+  );
+
+
+  setText(
+    "drawdown",
+    `Drawdown ${money(
+      an.portfolio?.drawdown ??
+      s.portfolio?.drawdown
+    )}`
+  );
+
+
+  setText(
+    "exposure",
+    `Exposure ${money(
+      risk.exposure
+    )}`
+  );
+
+
+  const level =
+    String(
+      risk.level ??
+      "SAFE"
+    ).toUpperCase();
+
+
+  badge(
+    $("riskBadge"),
+    level
+  );
+
+
+  badge(
+    $("risk"),
+    level
+  );
+
+
+  const maxUtil =
+    Math.max(
+      Number(
+        risk.inventory_utilization || 0
+      ),
+      Number(
+        risk.exposure_utilization || 0
+      )
+    );
+
+
+  setText(
+    "riskUtil",
+    `Utilization ${pct(maxUtil)}`
+  );
+
+
+  setText(
+    "bestBid",
+    money(ob.best_bid)
+  );
+
+
+  setText(
+    "bestAsk",
+    money(ob.best_ask)
+  );
+
+
+  setText(
+    "spread",
+    ob.spread === null ||
+    ob.spread === undefined
+      ? "Spread —"
+      : `Spread ${money(ob.spread)}`
+  );
+
+
+  /*
+     IMPORTANT:
+     bookRows() returns HTML.
+     Therefore we use innerHTML,
+     not textContent.
+  */
+
+  setHTML(
+    "bids",
+    bookRows(
+      ob.bids,
+      "bid"
+    )
+  );
+
+
+  setHTML(
+    "asks",
+    bookRows(
+      ob.asks,
+      "ask"
+    )
+  );
+
+
+  const regime =
+    String(
+      ai.regime ??
+      "CALM"
+    ).toUpperCase();
+
+
+  badge(
+    $("regime"),
+    regime
+  );
+
+
+  setText(
+    "bias",
+    String(
+      ai.directional_bias ??
+      "NEUTRAL"
+    ).toUpperCase()
+  );
+
+
+  setText(
+    "confidence",
+    pct(ai.confidence)
+  );
+
+
+  setText(
+    "movement",
+    num(
+      ai.expected_movement,
+      3
+    )
+  );
+
+
+  setText(
+    "aiSpread",
+    `${num(
+      ai.suggested_spread_multiplier,
+      2
+    )}×`
+  );
+
+
+  badge(
+    $("mmAllowed"),
+    q.risk_trading_allowed === false
+      ? "HALTED"
+      : "ACTIVE"
+  );
+
+
+  setText(
+    "fairPrice",
+    money(q.fair_price)
+  );
+
+
+  setText(
+    "mmSpread",
+    money(q.spread)
+  );
+
+
+  setText(
+    "mmBid",
+    money(q.bid_price)
+  );
+
+
+  setText(
+    "mmAsk",
+    money(q.ask_price)
+  );
+
+
+  setText(
+    "bidQty",
+    num(q.bid_quantity,0)
+  );
+
+
+  setText(
+    "askQty",
+    num(q.ask_quantity,0)
+  );
+
+
+  setText(
+    "invUtil",
+    pct(
+      risk.inventory_utilization
+    )
+  );
+
+
+  setText(
+    "expUtil",
+    pct(
+      risk.exposure_utilization
+    )
+  );
+
+
+  setText(
+    "volatility",
+    num(
+      risk.volatility ??
+      m.volatility,
+      4
+    )
+  );
+
+
+  setText(
+    "loss",
+    money(risk.loss)
+  );
+
+
+  setText(
+    "riskMult",
+    `${num(
+      risk.quote_size_multiplier,
+      2
+    )}×`
+  );
+
+
+  const ta =
+    an.trading || {};
+
+
+  const mk =
+    an.market || {};
+
+
+  const pf =
+    an.portfolio || {};
+
+
+  setText(
+    "trades",
+    ta.total_trades ?? 0
+  );
+
+
+  setText(
+    "volume",
+    ta.total_volume ?? 0
+  );
+
+
+  setText(
+    "avgVol",
+    num(
+      mk.average_volatility,
+      4
+    )
+  );
+
+
+  setText(
+    "maxVol",
+    num(
+      mk.maximum_volatility,
+      4
+    )
+  );
+
+
+  setText(
+    "maxInv",
+    num(
+      pf.maximum_inventory,
+      0
+    )
+  );
+
+
+  setText(
+    "maxDD",
+    money(
+      pf.maximum_drawdown
+    )
+  );
+
+
+  setText(
+    "tradeActivity",
+    ta.trade_activity ??
+    "IDLE"
+  );
+
+
+  drawChart();
+
+}
+
+
+/* ---------------------------------------------------------
+   Order book
+--------------------------------------------------------- */
+
+function bookRows(
+  arr,
+  cls
+){
+
+  if(
+    !Array.isArray(arr) ||
+    !arr.length
+  ){
+
+    return `
+      <div class="level">
+        <span>—</span>
+        <span>—</span>
+      </div>
+    `;
+
+  }
+
+
+  return arr
+    .slice(0,7)
+    .map(
+      x => `
+        <div class="level">
+
+          <span class="${cls}">
+            ${money(x.price)}
+          </span>
+
+          <span>
+            ${x.quantity ??
+              x.size ??
+              0}
+          </span>
+
+        </div>
+      `
+    )
+    .join("");
+
+}
+
+
+/* ---------------------------------------------------------
+   Price chart
+--------------------------------------------------------- */
+
+function drawChart(){
+
+  const c =
+    $("chart");
+
+
+  const ctx =
+    c.getContext("2d");
+
+
+  const d =
+    devicePixelRatio || 1;
+
+
+  const w =
+    c.clientWidth;
+
+
+  const h =
+    270;
+
+
+  c.width =
+    w * d;
+
+
+  c.height =
+    h * d;
+
+
+  ctx.setTransform(
+    d,
+    0,
+    0,
+    d,
+    0,
+    0
+  );
+
+
+  ctx.clearRect(
+    0,
+    0,
+    w,
+    h
+  );
+
+
+  if(prices.length < 2){
+
+    ctx.fillStyle =
+      "#667384";
+
+
+    ctx.font =
+      "12px system-ui";
+
+
+    ctx.fillText(
+      "Waiting for market data…",
+      16,
+      30
+    );
+
+
+    return;
+
+  }
+
+
+  const min =
+    Math.min(...prices);
+
+
+  const max =
+    Math.max(...prices);
+
+
+  const range =
+    (max-min) || 1;
+
+
+  ctx.strokeStyle =
+    "#202936";
+
+
+  ctx.lineWidth =
+    1;
+
+
+  for(
+    let i=1;
+    i<5;
+    i++
+  ){
+
+    const y =
+      i*h/5;
+
+
+    ctx.beginPath();
+
+
+    ctx.moveTo(
+      0,
+      y
+    );
+
+
+    ctx.lineTo(
+      w,
+      y
+    );
+
+
+    ctx.stroke();
+
+  }
+
+
+  ctx.beginPath();
+
+
+  prices.forEach(
+    (p,i) => {
+
+      const x =
+        i*(w-18)/
+        (prices.length-1)+9;
+
+
+      const y =
+        h-18-
+        (p-min)/
+        range*
+        (h-36);
+
+
+      if(i){
+        ctx.lineTo(x,y);
+      }
+      else{
+        ctx.moveTo(x,y);
+      }
+
+    }
+  );
+
+
+  ctx.strokeStyle =
+    "#38bdf8";
+
+
+  ctx.lineWidth =
+    2;
+
+
+  ctx.stroke();
+
+
+  const p =
+    prices[
+      prices.length-1
+    ];
+
+
+  const x =
+    w-9;
+
+
+  const y =
+    h-18-
+    (p-min)/
+    range*
+    (h-36);
+
+
+  ctx.fillStyle =
+    "#38bdf8";
+
+
+  ctx.beginPath();
+
+
+  ctx.arc(
+    x,
+    y,
+    3.5,
+    0,
+    Math.PI*2
+  );
+
+
+  ctx.fill();
+
+}
+
+
+/* ---------------------------------------------------------
+   Simulation controls
+--------------------------------------------------------- */
+
+async function start(){
+
+  try{
+
+    await api(
+      "/api/simulation/start",
+      {
+        method:"POST",
+        body:JSON.stringify({
+          interval:.5
+        })
+      }
+    );
+
+
+    toast(
+      "Live simulation started"
+    );
+
+
+    refresh();
+
+  }
+
+  catch(e){
+
+    toast(
+      "Could not start simulation"
+    );
+
+  }
+
+}
+
+
+async function stop(){
+
+  try{
+
+    await api(
+      "/api/simulation/stop",
+      {
+        method:"POST"
+      }
+    );
+
+
+    toast(
+      "Simulation stopped"
+    );
+
+
+    refresh();
+
+  }
+
+  catch(e){
+
+    toast(
+      "Could not stop simulation"
+    );
+
+  }
+
+}
+
+
+async function step(){
+
+  try{
+
+    await api(
+      "/api/simulation/step",
+      {
+        method:"POST"
+      }
+    );
+
+
+    refresh();
+
+  }
+
+  catch(e){
+
+    toast(
+      "Stop live mode before manual step"
+    );
+
+  }
+
+}
+
+
+async function reset(){
+
+  try{
+
+    await api(
+      "/api/simulation/reset",
+      {
+        method:"POST"
+      }
+    );
+
+
+    prices = [];
+
+    lastStep = -1;
+
+
+    toast(
+      "Simulation reset"
+    );
+
+
+    refresh();
+
+  }
+
+  catch(e){
+
+    toast(
+      "Stop simulation before reset"
+    );
+
+  }
+
+}
+
+
+/* ---------------------------------------------------------
+   Stress test
+--------------------------------------------------------- */
+
+async function stress(){
+
+  try{
+
+    if(stressReplayTimer){
+
+      clearInterval(
+        stressReplayTimer
+      );
+
+      stressReplayTimer =
+        null;
+
+    }
+
+
+    stressSnapshots = [];
+
+    stressReplayIndex = 0;
+
+
+    setStressCards(
+      [],
+      null
+    );
+
+
+    setText(
+      "stressValidation",
+      "RUNNING"
+    );
+
+
+    badge(
+      $("stressStatus"),
+      "RUNNING"
+    );
+
+
+    $("stressHero")
+      .classList
+      .add(
+        "stress-running"
+      );
+
+
+    await api(
+      "/api/stress-test/start",
+      {
+        method:"POST",
+        body:JSON.stringify({
+          steps_per_phase:10
+        })
+      }
+    );
+
+
+    toast(
+      "Stress test started"
+    );
+
+
+    if(!stressTimer){
+
+      stressTimer =
+        setInterval(
+          refreshStress,
+          350
+        );
+
+    }
+
+
+    refreshStress();
+
+  }
+
+  catch(e){
+
+    $("stressHero")
+      .classList
+      .remove(
+        "stress-running"
+      );
+
+
+    toast(
+      "Stop live simulation before stress test"
+    );
+
+  }
+
+}
+
+
+function setStressCards(
+  snapshots,
+  activePhase
+){
+
+  const phases = [
+    "NORMAL",
+    "HIGH_VOLATILITY",
+    "CRASH",
+    "RECOVERY"
+  ];
+
+
+  const lastByPhase = {};
+
+
+  (
+    snapshots || []
+  ).forEach(
+    s => {
+
+      lastByPhase[
+        String(
+          s.phase || ""
+        ).toUpperCase()
+      ] = s;
+
+    }
+  );
+
+
+  phases.forEach(
+    (p,i) => {
+
+      const card =
+        $("stressCard"+i);
+
+
+      const status =
+        $("stressCard"+i+"Status");
+
+
+      const snap =
+        lastByPhase[p];
+
+
+      card.className =
+        "stress-card" +
+        (
+          activePhase === p
+            ? " live"
+            : ""
+        );
+
+
+      if(snap){
+
+        status.textContent =
+          `Step ${snap.step} · ${
+            String(
+              snap.risk_level ||
+              "SAFE"
+            )
+          }`;
+
+      }
+      else{
+
+        status.textContent =
+          activePhase === p
+            ? "Running…"
+            : "Waiting";
+
+      }
+
+
+      const bar =
+        $("phase"+i);
+
+
+      bar.className =
+        "phase" +
+
+        (
+          snap &&
+          activePhase !== p
+            ? " done"
+            : ""
+        ) +
+
+        (
+          activePhase === p
+            ? " active"
+            : ""
+        ) +
+
+        (
+          activePhase === "CRASH" &&
+          p === "CRASH"
+            ? " crash"
+            : ""
+        );
+
+    }
+  );
+
+}
+
+
+function applyStressSnapshot(
+  snap,
+  total
+){
+
+  if(!snap){
+    return;
+  }
+
+
+  const phase =
+    String(
+      snap.phase || ""
+    ).toUpperCase();
+
+
+  const step =
+    Number(
+      snap.step || 0
+    );
+
+
+  const risk =
+    String(
+      snap.risk_level ||
+      "SAFE"
+    ).toUpperCase();
+
+
+  setText(
+    "stressPhase",
+    phase || "—"
+  );
+
+
+  setText(
+    "stressStep",
+    `STEP ${step} / ${total}`
+  );
+
+
+  $("stressProgress")
+    .style
+    .width =
+      `${Math.min(
+        100,
+        step/total*100
+      )}%`;
+
+
+  setText(
+    "stressPrice",
+    money(snap.price)
+  );
+
+
+  setText(
+    "stressRisk",
+    risk
+  );
+
+
+  setText(
+    "stressInventory",
+    num(
+      snap.inventory,
+      0
+    )
+  );
+
+
+  setText(
+    "stressVol",
+    num(
+      snap.volatility,
+      4
+    )
+  );
+
+
+  setText(
+    "stressQuote",
+    `${num(
+      snap.quote_size_multiplier,
+      2
+    )}×`
+  );
+
+
+  setText(
+    "stressTrading",
+    snap.trading_allowed
+      ? "ALLOWED"
+      : "HALTED"
+  );
+
+
+  $("stressTrading")
+    .className =
+      snap.trading_allowed
+        ? "green"
+        : "red";
+
+
+  setText(
+    "stressPnl",
+    money(snap.pnl)
+  );
+
+
+  $("stressPnl").style.color =
+    Number(snap.pnl) >= 0
+      ? "var(--green)"
+      : "var(--red)";
+
+
+  setText(
+    "stressEquity",
+    money(snap.equity)
+  );
+
+
+  setStressCards(
+    stressSnapshots.slice(
+      0,
+      Math.max(
+        0,
+        stressReplayIndex+1
+      )
+    ),
+    phase
+  );
+
+}
+
+
+function startStressReplay(
+  snapshots,
+  validation
+){
+
+  if(
+    !Array.isArray(snapshots) ||
+    !snapshots.length
+  ){
+    return;
+  }
+
+
+  if(stressReplayTimer){
+
+    clearInterval(
+      stressReplayTimer
+    );
+
+  }
+
+
+  stressSnapshots =
+    snapshots;
+
+
+  stressReplayIndex =
+    0;
+
+
+  setText(
+    "stressValidation",
+    validation?.passed
+      ? "PASSED"
+      : "RUNNING"
+  );
+
+
+  badge(
+    $("stressStatus"),
+    "REPLAYING"
+  );
+
+
+  $("stressHero")
+    .classList
+    .add(
+      "stress-running"
+    );
+
+
+  applyStressSnapshot(
+    stressSnapshots[0],
+    stressSnapshots.length
+  );
+
+
+  stressReplayTimer =
+    setInterval(
+      () => {
+
+        stressReplayIndex++;
+
+
+        if(
+          stressReplayIndex >=
+          stressSnapshots.length
+        ){
+
+          clearInterval(
+            stressReplayTimer
+          );
+
+
+          stressReplayTimer =
+            null;
+
+
+          const finalSnap =
+            stressSnapshots[
+              stressSnapshots.length-1
+            ];
+
+
+          applyStressSnapshot(
+            finalSnap,
+            stressSnapshots.length
+          );
+
+
+          setStressCards(
+            stressSnapshots,
+            null
+          );
+
+
+          $("stressHero")
+            .classList
+            .remove(
+              "stress-running"
+            );
+
+
+          badge(
+            $("stressStatus"),
+            validation?.passed
+              ? "PASSED"
+              : "COMPLETE"
+          );
+
+
+          setText(
+            "stressValidation",
+            validation?.passed
+              ? "PASSED"
+              : "FAILED"
+          );
+
+
+          toast(
+            validation?.passed
+              ? "Stress test validation passed"
+              : "Stress test completed"
+          );
+
+
+          return;
+
+        }
+
+
+        applyStressSnapshot(
+          stressSnapshots[
+            stressReplayIndex
+          ],
+          stressSnapshots.length
+        );
+
+      },
+      180
+    );
+
+}
+
+
+async function refreshStress(){
+
+  try{
+
+    const s =
+      await api(
+        "/api/stress-test"
+      );
+
+
+    const snapshots =
+      Array.isArray(s.snapshots)
+        ? s.snapshots
+        : [];
+
+
+    if(s.running){
+
+      badge(
+        $("stressStatus"),
+        "RUNNING"
+      );
+
+
+      $("stressHero")
+        .classList
+        .add(
+          "stress-running"
+        );
+
+
+      if(snapshots.length){
+
+        const latest =
+          snapshots[
+            snapshots.length-1
+          ];
+
+
+        applyStressSnapshot(
+          latest,
+          40
+        );
+
+
+        setStressCards(
+          snapshots,
+          String(
+            latest.phase || ""
+          ).toUpperCase()
+        );
+
+      }
+
+      return;
+
+    }
+
+
+    if(
+      snapshots.length &&
+      !stressReplayTimer
+    ){
+
+      startStressReplay(
+        snapshots,
+        s.validation
+      );
+
+    }
+    else if(
+      !snapshots.length
+    ){
+
+      badge(
+        $("stressStatus"),
+        "READY"
+      );
+
+
+      setText(
+        "stressPhase",
+        "READY"
+      );
+
+
+      setText(
+        "stressStep",
+        "Awaiting test"
+      );
+
+
+      setText(
+        "stressValidation",
+        "—"
+      );
+
+
+      setStressCards(
+        [],
+        null
+      );
+
+    }
+
+
+    if(
+      !s.running &&
+      stressTimer
+    ){
+
+      clearInterval(
+        stressTimer
+      );
+
+
+      stressTimer =
+        null;
+
+    }
+
+  }
+
+  catch(e){
+
+    badge(
+      $("stressStatus"),
+      "OFFLINE"
+    );
+
+  }
+
+}
+
+
+/* ---------------------------------------------------------
+   Event handlers
+--------------------------------------------------------- */
+
+$("startBtn").onclick =
+  start;
+
+
+$("stopBtn").onclick =
+  stop;
+
+
+$("stepBtn").onclick =
+  step;
+
+
+$("resetBtn").onclick =
+  reset;
+
+
+$("stressBtn").onclick =
+  stress;
+
+
+window.addEventListener(
+  "resize",
+  drawChart
+);
+
+
+/* ---------------------------------------------------------
+   Initial load
+--------------------------------------------------------- */
+
+refresh();
+
+refreshStress();
+
+
+setInterval(
+  refresh,
+  700
+);
+
+</script>
+
+</body>
+</html>
